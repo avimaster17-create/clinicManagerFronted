@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import AddPatientModal from './AddPatientModal';
 import LogVisitModal from './LogVisitModal'; 
 import PatientHistoryModal from './PatientHistoryModal';
-
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 export default function Dashboard() {
   const [stats, setStats] = useState({ total_patients: 0, total_revenue: 0 });
   const [patients, setPatients] = useState([]);
@@ -14,13 +14,13 @@ export default function Dashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const statsRes = await fetch('http://localhost:5001/api/dashboard/today');
+      const statsRes = await fetch(`${API_URL}/api/dashboard/today`);
       if (statsRes.ok) {
         const statsData = await statsRes.json();
         setStats(statsData.stats);
       }
 
-      const patientsRes = await fetch('http://localhost:5001/api/patients');
+      const patientsRes = await fetch(`${API_URL}/api/patients`);
       if (patientsRes.ok) {
         const patientsData = await patientsRes.json();
         setPatients(patientsData);

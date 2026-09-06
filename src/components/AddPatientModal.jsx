@@ -7,7 +7,7 @@ export default function AddPatientModal({ isOpen, onClose, onPatientAdded }) {
   const [gender, setItemsGender] = useState('Male');
   const [entryDate, setEntryDate] = useState('');
   const [loading, setLoading] = useState(false);
-
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
   if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
@@ -15,7 +15,7 @@ export default function AddPatientModal({ isOpen, onClose, onPatientAdded }) {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5001/api/patients', {
+      const response = await fetch(`${API_URL}/api/patients`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 

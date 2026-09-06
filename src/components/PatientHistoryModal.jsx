@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 export default function PatientHistoryModal({ isOpen, onClose, patientId }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -7,7 +7,7 @@ export default function PatientHistoryModal({ isOpen, onClose, patientId }) {
   useEffect(() => {
     if (isOpen && patientId) {
       setLoading(true);
-      fetch(`http://localhost:5001/api/patients/${patientId}/history`)
+      fetch(`${API_URL}/api/patients/${patientId}/history`)
         .then(res => res.json())
         .then(data => {
           setData(data);

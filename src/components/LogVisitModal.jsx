@@ -1,5 +1,5 @@
 import { useState } from 'react';
-
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 export default function LogVisitModal({ isOpen, onClose, patient, onVisitLogged }) {
   const [formData, setFormData] = useState({
     chief_complaint: '', diagnosis: '', fee_collected: ''
@@ -12,7 +12,7 @@ export default function LogVisitModal({ isOpen, onClose, patient, onVisitLogged 
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5001/api/visits', {
+      const response = await fetch(`${API_URL}/api/visits`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
