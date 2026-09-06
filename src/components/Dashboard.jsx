@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import AddPatientModal from './AddPatientModal';
 import LogVisitModal from './LogVisitModal'; 
 import PatientHistoryModal from './PatientHistoryModal';
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+
 export default function Dashboard() {
   const [stats, setStats] = useState({ total_patients: 0, total_revenue: 0 });
   const [patients, setPatients] = useState([]);
@@ -94,10 +96,15 @@ export default function Dashboard() {
                       {patient.child_name}
                     </td>
                     <td className="px-6 py-4 text-gray-600">{patient.parent_phone}</td>
-                    <td className="px-6 py-4 text-gray-500">{patient.dob ? new Date(patient.dob).toLocaleDateString() : ''}</td>
+                    
+                    {/* SAFE DATE CHECKS APPLIED HERE */}
+                    <td className="px-6 py-4 text-gray-500">
+                      {patient.dob ? new Date(patient.dob).toLocaleDateString() : 'N/A'}
+                    </td>
                     <td className="px-6 py-4 text-gray-500 text-sm">
                       {patient.created_at ? new Date(patient.created_at).toLocaleDateString() : 'N/A'}
                     </td>
+                    
                     <td className="px-6 py-4 text-right">
                       <button 
                         onClick={() => setVisitModalState({ isOpen: true, patient: patient })}
