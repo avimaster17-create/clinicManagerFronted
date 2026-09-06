@@ -11,38 +11,30 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
   if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
+  try {
+    const response = await fetch(`${API_URL}/api/patients`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ child_name: childName, parent_phone: parentPhone, dob })
+    });
 
-    try {
-      const response = await fetch(`${API_URL}/api/patients`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          child_name: childName, 
-          parent_phone: parentPhone, 
-          dob, 
-          gender,
-          created_at: entryDate || undefined 
-        }),
-      });
-
-      if (response.ok) {
-        setChildName('');
-        setParentPhone('');
-        setDob('');
-        setEntryDate('');
-        onPatientAdded();
-        onClose();
-      } else {
-        alert('Failed to add patient');
-      }
-    } catch (err) {
-      console.error('Error adding patient:', err);
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.details || 'Unknown server error');
     }
-  };
+
+    // Reset form and refresh data
+    setChildName('');
+    setParentPhone('');
+    setDob('');
+    onClose();
+    onPatientAdded();
+  } catch (error) {
+    console.error("Submission failed:", error);
+    alert("Mobile Error: " + error.message); // This will pop up on your friend's phone!
+  }
+};
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
