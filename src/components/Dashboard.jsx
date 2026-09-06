@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
 import AddPatientModal from './AddPatientModal';
-import LogVisitModal from './LogVisitModal'; // Imported new modal
+import LogVisitModal from './LogVisitModal'; 
+import PatientHistoryModal from './PatientHistoryModal'; // 1. Import history modal
 
 export default function Dashboard() {
   const [stats, setStats] = useState({ total_patients: 0, total_revenue: 0 });
   const [patients, setPatients] = useState([]);
   
-  // Modal states
+  // Modal & UI States
   const [isAddPatientOpen, setIsAddPatientOpen] = useState(false);
   const [visitModalState, setVisitModalState] = useState({ isOpen: false, patient: null });
+  const [historyPatientId, setHistoryPatientId] = useState(null); // 2. History modal state
+  const [searchTerm, setSearchTerm] = useState(''); 
 
   const fetchDashboardData = async () => {
     try {
@@ -31,6 +34,11 @@ export default function Dashboard() {
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  const filteredPatients = patients.filter(patient => 
+    patient.child_name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    patient.parent_phone.includes(searchTerm)
+  );
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
@@ -55,8 +63,15 @@ export default function Dashboard() {
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
+        <div className="px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
           <h3 className="font-semibold text-gray-800">Patient Database</h3>
+          <input 
+            type="text" 
+            placeholder="Search name or phone..." 
+            className="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none w-64"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
@@ -69,12 +84,16 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {patients.length === 0 ? (
-                <tr><td colSpan="4" className="px-6 py-8 text-center text-gray-500">No patients added yet.</td></tr>
+              {filteredPatients.length === 0 ? (
+                <tr><td colSpan="4" className="px-6 py-8 text-center text-gray-500">No patients found.</td></tr>
               ) : (
-                patients.map((patient) => (
+                filteredPatients.map((patient) => (
                   <tr key={patient.id} className="hover:bg-gray-50 transition">
-                    <td className="px-6 py-4 font-medium text-gray-900">{patient.child_name}</td>
+                    {/* 3. Clicking the name opens history */}
+                    <td className="px-6 py-4 font-medium text-blue-600 cursor-pointer hover:underline"
+                        onClick={() => setHistoryPatientId(patient.id)}>
+                      {patient.child_name}
+                    </td>
                     <td className="px-6 py-4 text-gray-600">{patient.parent_phone}</td>
                     <td className="px-6 py-4 text-gray-500">{new Date(patient.dob).toLocaleDateString()}</td>
                     <td className="px-6 py-4 text-right">
@@ -103,6 +122,13 @@ export default function Dashboard() {
         patient={visitModalState.patient}
         onClose={() => setVisitModalState({ isOpen: false, patient: null })} 
         onVisitLogged={fetchDashboardData} 
+      />
+
+      {/* 4. Render History Modal */}
+      <PatientHistoryModal 
+        isOpen={!!historyPatientId}
+        patientId={historyPatientId}
+        onClose={() => setHistoryPatientId(null)}
       />
     </div>
   );
