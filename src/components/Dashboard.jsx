@@ -36,10 +36,18 @@ export default function Dashboard() {
     fetchDashboardData();
   }, []);
 
-  const filteredPatients = patients.filter(patient => 
-    patient.child_name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    patient.parent_phone.includes(searchTerm)
-  );
+  // CRASH-PROOF SEARCH FILTER 
+  const filteredPatients = patients.filter(patient => {
+    const nameMatch = patient.child_name 
+      ? String(patient.child_name).toLowerCase().includes(searchTerm.toLowerCase())
+      : false;
+      
+    const phoneMatch = patient.parent_phone 
+      ? String(patient.parent_phone).includes(searchTerm)
+      : false;
+
+    return nameMatch || phoneMatch;
+  });
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
@@ -97,7 +105,7 @@ export default function Dashboard() {
                     </td>
                     <td className="px-6 py-4 text-gray-600">{patient.parent_phone}</td>
                     
-                    {/* SAFE DATE CHECKS APPLIED HERE */}
+                    {/* SAFE DATE RENDERING */}
                     <td className="px-6 py-4 text-gray-500">
                       {patient.dob ? new Date(patient.dob).toLocaleDateString() : 'N/A'}
                     </td>

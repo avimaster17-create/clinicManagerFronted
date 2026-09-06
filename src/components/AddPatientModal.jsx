@@ -4,37 +4,51 @@ export default function AddPatientModal({ isOpen, onClose, onPatientAdded }) {
   const [childName, setChildName] = useState('');
   const [parentPhone, setParentPhone] = useState('');
   const [dob, setDob] = useState('');
-  const [gender, setItemsGender] = useState('Male');
+  const [gender, setGender] = useState('Male'); // Fixed naming
   const [entryDate, setEntryDate] = useState('');
   const [loading, setLoading] = useState(false);
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+  
   if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const response = await fetch(`${API_URL}/api/patients`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ child_name: childName, parent_phone: parentPhone, dob })
-    });
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      const response = await fetch(`${API_URL}/api/patients`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          child_name: childName, 
+          parent_phone: parentPhone, 
+          dob: dob,
+          gender: gender,        // Added to payload!
+          created_at: entryDate  // Added to payload!
+        })
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.details || 'Unknown server error');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.details || errorData.error || 'Unknown server error');
+      }
+
+      // Reset form and refresh data on success
+      setChildName('');
+      setParentPhone('');
+      setDob('');
+      setGender('Male');
+      setEntryDate('');
+      onClose();
+      onPatientAdded();
+    } catch (error) {
+      console.error("Submission failed:", error);
+      alert("Mobile Error: " + error.message); // Pops up safely on phones
+    } finally {
+      setLoading(false);
     }
-
-    // Reset form and refresh data
-    setChildName('');
-    setParentPhone('');
-    setDob('');
-    onClose();
-    onPatientAdded();
-  } catch (error) {
-    console.error("Submission failed:", error);
-    alert("Mobile Error: " + error.message); // This will pop up on your friend's phone!
-  }
-};
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
@@ -85,7 +99,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
               <select 
                 className="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"
                 value={gender}
-                onChange={(e) => setItemsGender(e.target.value)}>
+                onChange={(e) => setGender(e.target.value)}>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
                 <option value="Other">Other</option>
@@ -110,13 +124,14 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
             <button 
               type="button" 
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition">
+              disabled={loading}
+              className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition disabled:opacity-50">
               Cancel
             </button>
             <button 
               type="submit" 
               disabled={loading}
-              className="px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm">
+              className="px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm disabled:opacity-50">
               {loading ? 'Saving...' : 'Save Patient Record'}
             </button>
           </div>
