@@ -50,7 +50,6 @@ export default function PatientHistoryModal({ isOpen, onClose, patientId }) {
                   {data?.visits?.map((visit) => (
                     <div key={visit.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50 shadow-sm">
                       <div className="flex justify-between items-center mb-2">
-                        {/* Prominent Visit Date Badge */}
                         <span className="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-1 rounded">
                           Visit Date: {new Date(visit.created_at).toLocaleDateString()} at {new Date(visit.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
